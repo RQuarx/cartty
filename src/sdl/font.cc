@@ -70,7 +70,12 @@ namespace
                 FcPatternGetString(matched, FC_FILE, 0, &file_path) == FcResultMatch)
                 path = reinterpret_cast<char *>(file_path);
             else
+            {
+                FcPatternDestroy(pattern);
+                FcFini();
                 return cartty::error { "Font family \"{}\" not found.", family }.unexpected();
+            }
+
             FcPatternDestroy(matched);
         }
 

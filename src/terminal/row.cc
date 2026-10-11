@@ -303,7 +303,7 @@ void row::erase_underline(row::range range)
 
 void row::clear() noexcept
 {
-    m_columns.clear();
+    for (auto &c : m_columns) c = cell {};
     m_attribute = attributes {};
     m_extras.clear();
 }

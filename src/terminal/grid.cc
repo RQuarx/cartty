@@ -145,7 +145,10 @@ void grid::mf_ensure_rows_is_under_limit()
 
 void grid::resize(std::size_t new_rows, std::size_t new_columns)
 {
-    if (new_columns == columns() or new_columns < 2) return;
+    if (new_columns < 2) return;
+    if (new_columns == columns() and new_rows > rows())
+        while (new_rows > rows()) push_back();
+
     static std::deque<term::row> rebuilt_rows;
     static _impl::logical_line   line;
     line.clear();
@@ -176,8 +179,7 @@ void grid::resize(std::size_t new_rows, std::size_t new_columns)
 
     m_rows = std::move(rebuilt_rows);
 
-    if (m_rows.size() < new_rows)
-        while (m_rows.size() < new_rows) push_back();
+    while (new_rows > rows()) push_back();
 
     mf_ensure_rows_is_under_limit();
 }

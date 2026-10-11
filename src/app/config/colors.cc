@@ -81,7 +81,7 @@ void colors::mf_parse_foreground_and_background(std::string_view key, const toml
     if (color[intensity::bright] == unset)
     {
         spdlog::warn("colors.{}.bright is not specified, using normal value.", key);
-        color[intensity::bright] = color[intensity::bright];
+        color[intensity::bright] = color[intensity::normal];
     }
 
     if (color[intensity::dim] == unset)
