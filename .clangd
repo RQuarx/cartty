@@ -17,14 +17,8 @@ Diagnostics:
             - modernize-*
         Remove:
             - bugprone-easily-swappable-parameters
-            - bugprone-narrowing-conversions
             - bugprone-throwing-static-initialization
-            - modernize-avoid-c-arrays
-            - modernize-avoid-c-style-cast
             - modernize-use-designated-initializers
-            - modernize-use-integer-sign-comparison
-            - modernize-use-trailing-return-type
-            - readability-avoid-nested-conditional-operator
             - readability-braces-around-statements
             - readability-identifier-length
             - readability-inconsistent-ifelse-braces

@@ -7,6 +7,22 @@
 using cartty::app::args;
 
 
+template <>
+struct std::formatter<lyra::cli>
+{
+    [[nodiscard]] constexpr auto parse(auto &ctx) noexcept { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const lyra::cli &cli, FormatContext &ctx) const noexcept
+        -> FormatContext::iterator
+    {
+        std::ostringstream out;
+        out << cli;
+        return std::ranges::copy(std::move(out).str(), ctx.out()).out;
+    }
+};
+
+
 args::args()
 {
     namespace fs = std::filesystem;
@@ -47,19 +63,18 @@ try
     /* clang-format on */
 
     if (auto res = cli.parse({ int(args.size()), args.begin().base() }); !res)
-        return error { "Failed to parse command-line arguments: {}", res.message() }
-            .unexpected();
+        return error { "Failed to parse command-line arguments: {}", res.message() }.unexpected();
 
-    auto print = [](auto &&text)
+    auto print = []<typename... Args>(std::format_string<Args...> fmt, Args &&...args)
     {
-        std::cerr << text << '\n';
+        std::println(std::cerr, fmt, std::forward<Args>(args)...);
         return std::nullopt;
     };
 
-    if (help) return print(cli);
+    if (help) return print("{}", cli);
     if (version)
-        return print(std::format("{} {}\nCopyright (C) 2026 Kei <RQuarx@protonmail.com>",
-                                 metadata::name, metadata::version, metadata::license));
+        return print("{} {}\nCopyright (C) 2026 Kei <RQuarx@protonmail.com>", metadata::name,
+                     metadata::version, metadata::license);
 
     return parsed;
 }

@@ -29,16 +29,16 @@ public:
     config_error(const toml::parse_error    &err,
                  const std::source_location &source = std::source_location::current())
         : cartty::error { source,
-                        "Failed to parse config file {}:[{}]-[{}]: {}",
-                        *err.source().path,
-                        err.source().begin,
-                        err.source().end,
-                        err.description() }
+                          "Failed to parse config file {}:[{}]-[{}]: {}",
+                          *err.source().path,
+                          err.source().begin,
+                          err.source().end,
+                          err.description() }
     {
     }
 
     template <typename... Args>
-    config_error(const toml::source_region          &region,
+    config_error(const toml::source_region            &region,
                  cartty::_impl::format_string<Args...> fmt,
                  Args and...args)
         : cartty::error {
@@ -91,12 +91,13 @@ try
         if (auto res = cfg->mf_reload(); !res) spdlog::error("{}", res.error());
     };
 
-    if (auto res = create_fs_watcher(config_file, fn); res.has_value())
-        cfg->m_config_watcher_thread = std::move(*res);
-    else
-        return res.error().unexpected();
-
-    return cfg;
+    return create_fs_watcher(config_file, fn)
+        .and_then(
+            [cfg](std::jthread t) -> result<std::shared_ptr<config>>
+            {
+                cfg->m_config_watcher_thread = std::move(t);
+                return cfg;
+            });
 }
 catch (const std::bad_alloc &e)
 {

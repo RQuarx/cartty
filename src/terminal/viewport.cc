@@ -46,7 +46,8 @@ auto viewport::mf_translate_index(std::size_t relative) const noexcept -> result
 
 auto viewport::operator[](std::size_t i) noexcept -> result<row *>
 {
-    return mf_translate_index(i).and_then([this](std::size_t i) { return m_grid[i]; });
+    return mf_translate_index(i).and_then([this](std::size_t i) -> result<row *>
+                                          { return m_grid[i]; });
 }
 
 auto viewport::operator[](std::size_t i) const noexcept -> result<const row *>

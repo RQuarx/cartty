@@ -8,12 +8,9 @@ using cartty::app::window;
 
 auto window::create(const config &config) noexcept -> result<window>
 {
-    if (auto res
-        = sdl::window::create(config.get_window().get_title().data(), 800, 600); /* NOLINT */
-        res.has_value())
-        return window { std::move(res->first), std::move(res->second) };
-    else /* NOLINT */
-        return res.error().unexpected();
+    return sdl::window::create(config.get_window().get_title().data(), 800, 600) /* NOLINT */
+        .transform([](std::pair<sdl::window, sdl::renderer> p)
+                   { return window { std::move(p.first), std::move(p.second) }; });
 }
 
 
