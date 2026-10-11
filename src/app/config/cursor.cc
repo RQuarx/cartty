@@ -1,7 +1,7 @@
 #include "app/config/cursor.hh"
 #include "app/config/utils.hh"
 
-using cart::app::cfg::cursor;
+using cartty::app::cfg::cursor;
 
 
 auto cursor::parse(const toml::table &cursor) noexcept -> result<>

@@ -4,7 +4,7 @@
 #include "sdl/renderer.hh"
 
 
-namespace cart::app::render
+namespace cartty::app::render
 {
     class renderer
     {

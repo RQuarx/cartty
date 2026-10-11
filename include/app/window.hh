@@ -7,7 +7,7 @@
 #include "shared/result.hh"
 
 
-namespace cart::app
+namespace cartty::app
 {
     class window
     {

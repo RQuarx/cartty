@@ -4,7 +4,7 @@
 #include "terminal/theme.hh"
 
 
-namespace cart::term
+namespace cartty::term
 {
     class color
     {

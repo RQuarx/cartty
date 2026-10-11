@@ -7,9 +7,9 @@
 #include "app/window.hh"
 
 
-namespace cart::app
+namespace cartty::app
 {
-    class cart
+    class application
     {
     public:
         [[nodiscard]] static auto run(std::span<char *const> argv) noexcept -> int;
@@ -29,10 +29,10 @@ namespace cart::app
         [[nodiscard]] auto on_frame() noexcept -> result<action>;
 
 
-        cart(args                    &&args,
-             std::shared_ptr<config> &&config,
-             window                  &&window,
-             render::renderer        &&renderer) noexcept;
+        application(args                    &&args,
+                    std::shared_ptr<config> &&config,
+                    window                  &&window,
+                    render::renderer        &&renderer) noexcept;
 
 
         void mf_on_window_resized(int new_width, int new_height) noexcept;

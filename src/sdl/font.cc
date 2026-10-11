@@ -7,7 +7,7 @@
 #include "sdl/error.hh"
 #include "sdl/font.hh"
 
-using cart::sdl::font;
+using cartty::sdl::font;
 
 namespace
 {
@@ -50,13 +50,13 @@ namespace
 
 
     auto get_path(std::string_view family, std::string_view style) noexcept
-        -> cart::result<std::filesystem::path>
+        -> cartty::result<std::filesystem::path>
     {
         if (std::filesystem::exists(family) and std::filesystem::is_regular_file(family))
             return family;
 
         FcConfig *cfg = FcInitLoadConfigAndFonts();
-        if (cfg == nullptr) return cart::error { "Failed to initialize fontconfig" }.unexpected();
+        if (cfg == nullptr) return cartty::error { "Failed to initialize fontconfig" }.unexpected();
 
         FcPattern *pattern = FcPatternCreate();
         FcPatternAddString(pattern, FC_FAMILY, reinterpret_cast<const FcChar8 *>(family.data()));
@@ -70,7 +70,7 @@ namespace
                 FcPatternGetString(matched, FC_FILE, 0, &file_path) == FcResultMatch)
                 path = reinterpret_cast<char *>(file_path);
             else
-                return cart::error { "Font family \"{}\" not found.", family }.unexpected();
+                return cartty::error { "Font family \"{}\" not found.", family }.unexpected();
             FcPatternDestroy(matched);
         }
 
@@ -93,7 +93,7 @@ try
     if (auto res = parse_font_style(style); res.has_value())
         ttf_font_style = *res;
     else
-        return cart::error { R"(Font style "{}" for "{}" is invalid.)", family, style }
+        return cartty::error { R"(Font style "{}" for "{}" is invalid.)", family, style }
             .unexpected();
 
     std::filesystem::path font_path;
@@ -119,7 +119,7 @@ try
 
     return sdl::error { "Failed to open font file \"{}\"", font_path.c_str() }.unexpected();
 }
-catch (cart::error &e)
+catch (cartty::error &e)
 {
     return std::move(e).unexpected();
 }
@@ -179,7 +179,7 @@ auto font::set_style(std::string_view style_string) noexcept -> result<>
         return {};
     }
 
-    return cart::error { "Style string (\"{}\") contains an invalid style.", style_string }
+    return cartty::error { "Style string (\"{}\") contains an invalid style.", style_string }
         .unexpected();
 }
 

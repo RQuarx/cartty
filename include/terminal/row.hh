@@ -9,7 +9,7 @@
 #include "terminal/types.hh"
 
 
-namespace cart::term
+namespace cartty::term
 {
     namespace _impl
     {
@@ -133,6 +133,8 @@ namespace cart::term
          * and the prompt range would be erased.
          */
         void set_prompt_row(std::optional<row::range> prompt_range = std::nullopt) noexcept;
+
+        void clear() noexcept;
 
 
         template <_impl::composed_resolver F>

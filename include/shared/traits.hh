@@ -6,7 +6,7 @@
 #include "shared/result.hh"
 
 
-namespace cart::trait
+namespace cartty::trait
 {
     /**
      * @brief Constrains `E` to be an enum whose underlying type is exactly `T`.

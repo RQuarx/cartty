@@ -6,7 +6,7 @@
 #include <SDL3/SDL_rect.h>
 
 
-namespace cart::sdl
+namespace cartty::sdl
 {
     struct color final
     {

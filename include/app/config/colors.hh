@@ -6,7 +6,7 @@
 #include "terminal/theme.hh"
 
 
-namespace cart::app::cfg
+namespace cartty::app::cfg
 {
     class colors final : public base
     {

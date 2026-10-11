@@ -1,6 +1,6 @@
 #include "sdl/window.hh"
 
-using cart::sdl::window;
+using cartty::sdl::window;
 
 
 auto window::create(const char *title, int w, int h) noexcept -> result<std::pair<window, renderer>>

@@ -4,7 +4,7 @@
 #include "shared/result.hh"
 
 
-namespace cart::app
+namespace cartty::app
 {
     struct args
     {

@@ -7,8 +7,8 @@
 #include "app/config/utils.hh"
 #include "app/inotify.hh"
 
-using cart::error;
-using cart::app::config;
+using cartty::error;
+using cartty::app::config;
 
 
 template <>
@@ -23,12 +23,12 @@ struct std::formatter<toml::source_position>
 };
 
 
-class config_error : public cart::error
+class config_error : public cartty::error
 {
 public:
     config_error(const toml::parse_error    &err,
                  const std::source_location &source = std::source_location::current())
-        : cart::error { source,
+        : cartty::error { source,
                         "Failed to parse config file {}:[{}]-[{}]: {}",
                         *err.source().path,
                         err.source().begin,
@@ -39,9 +39,9 @@ public:
 
     template <typename... Args>
     config_error(const toml::source_region          &region,
-                 cart::_impl::format_string<Args...> fmt,
+                 cartty::_impl::format_string<Args...> fmt,
                  Args and...args)
-        : cart::error {
+        : cartty::error {
               fmt.source,
               "Error [{}:{}]: {}",
               *region.path,

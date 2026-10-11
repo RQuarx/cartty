@@ -8,7 +8,7 @@
 #include "shared/traits.hh"
 
 
-namespace cart::sdl
+namespace cartty::sdl
 {
     class font final : runtime_guard<>, public trait::shared_handle_of<TTF_Font, TTF_CloseFont>
     {
@@ -94,10 +94,10 @@ namespace cart::sdl
 
 
 template <>
-struct std::hash<cart::sdl::font::key>
+struct std::hash<cartty::sdl::font::key>
 {
     [[nodiscard]]
-    auto operator()(const cart::sdl::font::key &key) const noexcept -> std::size_t
+    auto operator()(const cartty::sdl::font::key &key) const noexcept -> std::size_t
     {
         std::size_t hash = 0;
 

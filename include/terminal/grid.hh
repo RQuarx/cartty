@@ -6,7 +6,7 @@
 #include "terminal/row.hh"
 
 
-namespace cart::term
+namespace cartty::term
 {
     namespace _impl { struct logical_line; }
 
@@ -14,8 +14,24 @@ namespace cart::term
     class grid
     {
     public:
+        struct range
+        {
+            static constexpr auto unset = std::numeric_limits<std::size_t>::max();
+
+            std::size_t begin = unset;
+            std::size_t end   = unset;
+
+
+            friend auto operator==(range, range) -> bool = default;
+        };
+
+
+        grid(std::size_t rows, std::size_t columns, std::size_t scrollback_limit = 100'000);
+
+
         [[nodiscard]] auto columns() const noexcept -> std::size_t;
         [[nodiscard]] auto rows() const noexcept -> std::size_t;
+        [[nodiscard]] auto scrollback_limit() const noexcept -> std::size_t;
 
 
         [[nodiscard]] auto operator[](std::size_t row) noexcept -> result<term::row *>;
@@ -23,28 +39,24 @@ namespace cart::term
 
 
         [[nodiscard]]
-        auto operator[](std::size_t begin, std::size_t end) noexcept
+        auto operator[](range r) noexcept
             -> result<std::ranges::subrange<std::deque<term::row>::iterator>>;
 
         [[nodiscard]]
-        auto operator[](std::size_t begin, std::size_t end) const noexcept
+        auto operator[](range r) const noexcept
             -> result<std::ranges::subrange<std::deque<term::row>::const_iterator>>;
 
 
-        /**
-         * The resize doesn't take in `new_rows` because rows amount is not really important to the
-         * storage it self, and is a variable that the viewport handle.
-         */
-        void resize(std::size_t new_columns);
+        void resize(std::size_t new_rows, std::size_t new_columns);
         void pop_front();
         void push_back(row r);
         void push_back();
 
-        void set_rows_limit(std::size_t n);
+        void set_scrollback_limit(std::size_t n);
 
     private:
         std::deque<term::row> m_rows;
-        std::size_t           m_rows_limit = 100'000;
+        std::size_t           m_scrollback_limit;
 
 
         void mf_ensure_rows_is_under_limit();

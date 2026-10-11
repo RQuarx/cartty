@@ -4,7 +4,7 @@
 #include "shared/traits.hh"
 
 
-namespace cart::sdl
+namespace cartty::sdl
 {
     class window final : runtime_guard<>,
                          public trait::unique_handle_of<SDL_Window, SDL_DestroyWindow>

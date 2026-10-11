@@ -5,7 +5,7 @@
 #include <source_location>
 
 
-namespace cart
+namespace cartty
 {
     namespace _impl
     {
@@ -95,11 +95,11 @@ namespace cart
 
 
 template <>
-struct std::formatter<cart::error>
+struct std::formatter<cartty::error>
 {
     constexpr auto parse(auto &ctx) { return ctx.begin(); }
 
     template <typename FormatContext>
-    auto format(const cart::error &err, FormatContext &ctx) const -> FormatContext::iterator
+    auto format(const cartty::error &err, FormatContext &ctx) const -> FormatContext::iterator
     { return std::format_to(ctx.out(), "{}", err.format()); }
 };

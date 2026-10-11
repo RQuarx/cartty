@@ -4,7 +4,7 @@
 #include "shared/result.hh"
 
 
-namespace cart::app::cfg::utils
+namespace cartty::app::cfg::utils
 {
     template <typename T>
     auto as(std::string_view key, const toml::node &node) -> T

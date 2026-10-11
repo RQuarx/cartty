@@ -1,4 +1,4 @@
-app_src = files('args.cc', 'cart.cc', 'config.cc', 'window.cc')
+app_src = files('args.cc', 'cartty.cc', 'config.cc', 'window.cc')
 
 subdir('config')
 app_src += config_src

@@ -2,7 +2,7 @@
 #include "app/config/base.hh"
 
 
-namespace cart::app::cfg
+namespace cartty::app::cfg
 {
     class window final : public base
     {
@@ -28,7 +28,7 @@ namespace cart::app::cfg
         { return m_dynamic_padding; }
 
     private:
-        std::string m_title = "cart";
+        std::string m_title = "cartty";
 
         struct
         {

@@ -2,13 +2,13 @@
 #include <spdlog/spdlog.h>
 
 #include "app/args.hh"
-#include "app/cart.hh"
+#include "app/cartty.hh"
 #include "app/window.hh"
 
-using namespace cart;
+using cartty::app::application;
 
 
-auto app::cart::run(std::span<char *const> argv) noexcept -> int
+auto application::run(std::span<char *const> argv) noexcept -> int
 {
     spdlog::cfg::load_env_levels();
 
@@ -35,9 +35,6 @@ auto app::cart::run(std::span<char *const> argv) noexcept -> int
         return 1;
     }
 
-    spdlog::info("{} {}", config->get_font().get_normal(cfg::font::family),
-                 config->get_font().get_normal(cfg::font::style));
-
     if (auto res = window::create(*config); res.has_value())
     {
         render::renderer renderer;
@@ -50,12 +47,13 @@ auto app::cart::run(std::span<char *const> argv) noexcept -> int
             return 1;
         }
 
-        cart c { std::move(args), std::move(config), std::move(*res), std::move(renderer) };
+        application app { std::move(args), std::move(config), std::move(*res),
+                          std::move(renderer) };
 
         spdlog::info("Application instance successfuly created,");
 
         while (true)
-            if (auto res = c.on_frame(); res.has_value())
+            if (auto res = app.on_frame(); res.has_value())
             {
                 if (*res != action::continue_process) return std::to_underlying(*res);
             }
@@ -75,19 +73,19 @@ auto app::cart::run(std::span<char *const> argv) noexcept -> int
 }
 
 
-app::cart::cart(args                    &&args,
-                std::shared_ptr<config> &&config,
-                window                  &&window,
-                render::renderer        &&renderer) noexcept
+application::application(args                    &&args,
+                         std::shared_ptr<config> &&config,
+                         window                  &&window,
+                         render::renderer        &&renderer) noexcept
     : m_config { std::move(config) }, m_args { std::move(args) }, m_window { std::move(window) },
       m_renderer { std::move(renderer) }
 {
-    m_window.set_on_resize_callback(*this, &cart::mf_on_window_resized);
-    m_config->set_config_changed_callback(*this, &cart::mf_on_config_changed_worker_thread);
+    m_window.set_on_resize_callback(*this, &application::mf_on_window_resized);
+    m_config->set_config_changed_callback(*this, &application::mf_on_config_changed_worker_thread);
 }
 
 
-auto app::cart::on_frame() noexcept -> result<action>
+auto application::on_frame() noexcept -> result<action>
 {
     {
         std::scoped_lock lock { m_config_mtx };
@@ -108,18 +106,18 @@ auto app::cart::on_frame() noexcept -> result<action>
 }
 
 
-void app::cart::mf_on_window_resized(int new_width, int new_height) noexcept
+void application::mf_on_window_resized(int new_width, int new_height) noexcept
 { spdlog::trace("Window resized ({} {})", new_width, new_height); }
 
 
-void app::cart::mf_on_config_changed_worker_thread() noexcept
+void application::mf_on_config_changed_worker_thread() noexcept
 {
     std::scoped_lock lock { m_config_mtx };
     m_config_changed_amount++;
 }
 
 
-auto app::cart::mf_on_config_changed_main_thread() noexcept -> result<>
+auto application::mf_on_config_changed_main_thread() noexcept -> result<>
 {
     std::scoped_lock lock { m_config_mtx };
     m_config_changed_amount--;

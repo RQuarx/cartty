@@ -3,7 +3,7 @@
 #include "terminal/cursor.hh"
 
 
-namespace cart::app::cfg
+namespace cartty::app::cfg
 {
     using namespace std::chrono_literals;
 

@@ -4,7 +4,7 @@
 #include "app/args.hh"
 #include "metadata.hh"
 
-using cart::app::args;
+using cartty::app::args;
 
 
 args::args()

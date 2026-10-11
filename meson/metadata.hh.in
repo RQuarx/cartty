@@ -2,7 +2,7 @@
 #include <string_view>
 
 
-namespace cart::metadata
+namespace cartty::metadata
 {
     inline constexpr std::string_view name = "@PROJECT_NAME@";
     inline constexpr std::string_view version = "@PROJECT_VERSION@";

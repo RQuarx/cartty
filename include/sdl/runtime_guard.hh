@@ -7,7 +7,7 @@
 #include "shared/traits.hh"
 
 
-namespace cart::sdl
+namespace cartty::sdl
 {
     namespace _impl
     {

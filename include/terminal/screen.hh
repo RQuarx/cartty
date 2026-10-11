@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace cart::term
+namespace cartty::term
 {
     class screen
     {

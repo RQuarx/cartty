@@ -1,7 +1,7 @@
 #include "sdl/error.hh"
 #include "sdl/renderer.hh"
 
-using cart::sdl::renderer;
+using cartty::sdl::renderer;
 
 
 auto renderer::set_draw_color(color clear_color) noexcept -> result<>

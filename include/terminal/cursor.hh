@@ -4,7 +4,7 @@
 #include "terminal/types.hh"
 
 
-namespace cart::term
+namespace cartty::term
 {
     struct cursor
     {

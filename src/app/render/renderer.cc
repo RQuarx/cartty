@@ -2,7 +2,7 @@
 
 #include "app/render/renderer.hh"
 
-using cart::app::render::renderer;
+using cartty::app::render::renderer;
 
 
 auto renderer::create(window &window, const config &config) noexcept -> result<renderer>

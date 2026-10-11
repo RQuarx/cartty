@@ -10,7 +10,7 @@ namespace
      * @note A range that strictly contains the hole is split into two.
      */
     template <typename T>
-    void erase_in(std::vector<T> &v, cart::term::row::range range)
+    void erase_in(std::vector<T> &v, cartty::term::row::range range)
     {
         for (std::size_t i = 0; i < v.size();)
         {
@@ -88,7 +88,7 @@ namespace
 }
 
 
-using extras = cart::term::row::extras;
+using extras = cartty::term::row::extras;
 
 
 auto extras::mf_uris() noexcept -> std::optional<std::vector<uri_range> *>
@@ -178,7 +178,7 @@ void extras::erase_underline(range range)
 #pragma region "row implementation"
 #include <spdlog/spdlog.h>
 
-using cart::term::row;
+using cartty::term::row;
 
 
 row::row(std::size_t columns) : m_columns { columns } {}
@@ -298,4 +298,12 @@ void row::erase_underline(row::range range)
     }
 
     m_extras.erase_underline(range);
+}
+
+
+void row::clear() noexcept
+{
+    m_columns.clear();
+    m_attribute = attributes {};
+    m_extras.clear();
 }

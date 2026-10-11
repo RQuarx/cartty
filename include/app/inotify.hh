@@ -10,7 +10,7 @@
 #include "shared/result.hh"
 
 
-namespace cart::app
+namespace cartty::app
 {
     class inotify_error final : public error
     {

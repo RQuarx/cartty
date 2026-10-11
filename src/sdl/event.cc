@@ -1,7 +1,7 @@
 #include "sdl/error.hh"
 #include "sdl/event.hh"
 
-using cart::sdl::event_pump;
+using cartty::sdl::event_pump;
 
 
 auto event_pump::poll() noexcept -> std::optional<event>

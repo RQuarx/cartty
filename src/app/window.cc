@@ -3,7 +3,7 @@
 #include "app/window.hh"
 #include "sdl/event.hh"
 
-using cart::app::window;
+using cartty::app::window;
 
 
 auto window::create(const config &config) noexcept -> result<window>

@@ -5,9 +5,9 @@
 
 #include "terminal/grid.hh"
 
-using cart::term::grid;
+using cartty::term::grid;
 
-namespace cart::term::_impl
+namespace cartty::term::_impl
 {
     struct logical_line
     {
@@ -70,6 +70,13 @@ namespace cart::term::_impl
 }
 
 
+grid::grid(std::size_t rows, std::size_t columns, std::size_t scrollback_limit)
+    : m_scrollback_limit { scrollback_limit }
+{
+    while (rows-- != 0) push_back(row { columns });
+}
+
+
 auto grid::columns() const noexcept -> std::size_t
 {
     if (m_rows.empty()) return 0;
@@ -78,6 +85,7 @@ auto grid::columns() const noexcept -> std::size_t
 
 
 auto grid::rows() const noexcept -> std::size_t { return m_rows.size(); }
+auto grid::scrollback_limit() const noexcept -> std::size_t { return m_scrollback_limit; }
 
 
 auto grid::operator[](std::size_t row) noexcept -> result<term::row *>
@@ -93,22 +101,22 @@ auto grid::operator[](std::size_t row) const noexcept -> result<const term::row 
 { return const_cast<grid &>(*this)[row]; }
 
 
-auto grid::operator[](std::size_t begin, std::size_t end) noexcept
+auto grid::operator[](range r) noexcept
     -> result<std::ranges::subrange<std::deque<term::row>::iterator>>
 {
-    if (begin > end)
-        return error { "Invalid range, `begin` ({}) >= `end` ({})", begin, end }.unexpected();
-    if (end > rows())
-        return error { "Out-of-range row access. `end` ({}) > grid::rows() ({})", end, rows() }
+    if (r.begin > r.end)
+        return error { "Invalid range, `begin` ({}) >= `end` ({})", r.begin, r.end }.unexpected();
+    if (r.end > rows())
+        return error { "Out-of-range row access. `end` ({}) > grid::rows() ({})", r.end, rows() }
             .unexpected();
 
-    return std::ranges::subrange { m_rows.begin() + begin, m_rows.begin() + end };
+    return std::ranges::subrange { m_rows.begin() + r.begin, m_rows.begin() + r.end };
 }
 
 
-auto grid::operator[](std::size_t begin, std::size_t end) const noexcept
+auto grid::operator[](range r) const noexcept
     -> result<std::ranges::subrange<std::deque<term::row>::const_iterator>>
-{ return const_cast<grid &>(*this)[begin, end]; }
+{ return const_cast<grid &>(*this)[r]; }
 
 
 void grid::pop_front() { m_rows.pop_front(); }
@@ -122,26 +130,26 @@ void grid::push_back(row r)
 }
 
 
-void grid::set_rows_limit(std::size_t n)
+void grid::set_scrollback_limit(std::size_t n)
 {
-    m_rows_limit = n;
+    m_scrollback_limit = n;
     mf_ensure_rows_is_under_limit();
 }
 
 
 void grid::mf_ensure_rows_is_under_limit()
 {
-    while (rows() > m_rows_limit) pop_front();
+    while (rows() > m_scrollback_limit) pop_front();
 }
 
 
-void grid::resize(std::size_t new_columns)
+void grid::resize(std::size_t new_rows, std::size_t new_columns)
 {
     if (new_columns == columns() or new_columns < 2) return;
-    static std::deque<term::row> new_rows;
+    static std::deque<term::row> rebuilt_rows;
     static _impl::logical_line   line;
     line.clear();
-    new_rows.clear();
+    rebuilt_rows.clear();
 
     spdlog::trace("Terminal grid resized from {} columns to {} columns.", columns(), new_columns);
 
@@ -160,13 +168,17 @@ void grid::resize(std::size_t new_columns)
 
         if (row.is_wrapped()) continue;
 
-        grid::rewrap(line, new_columns, new_rows);
+        grid::rewrap(line, new_columns, rebuilt_rows);
         line.clear();
     }
 
-    if (!line.cells.empty()) grid::rewrap(line, new_columns, new_rows);
+    if (!line.cells.empty()) grid::rewrap(line, new_columns, rebuilt_rows);
 
-    m_rows = std::move(new_rows);
+    m_rows = std::move(rebuilt_rows);
+
+    if (m_rows.size() < new_rows)
+        while (m_rows.size() < new_rows) push_back();
+
     mf_ensure_rows_is_under_limit();
 }
 

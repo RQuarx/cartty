@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace cart
+namespace cartty
 {
     template <typename Signature>
     class callback;

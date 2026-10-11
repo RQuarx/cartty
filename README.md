@@ -1,6 +1,6 @@
 <div align=center>
 
-# cart
+# cartty
 
 A blazingly fast terminal emulator designed with looks in mind.
 

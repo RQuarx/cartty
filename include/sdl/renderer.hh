@@ -8,7 +8,7 @@
 #include "shared/traits.hh"
 
 
-namespace cart::sdl
+namespace cartty::sdl
 {
     class renderer final : runtime_guard<>,
                            public trait::shared_handle_of<SDL_Renderer, SDL_DestroyRenderer>

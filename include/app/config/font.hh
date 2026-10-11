@@ -2,7 +2,7 @@
 #include "app/config/base.hh"
 
 
-namespace cart::app::cfg
+namespace cartty::app::cfg
 {
     class font final : public base
     {

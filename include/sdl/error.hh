@@ -4,14 +4,14 @@
 #include "shared/result.hh"
 
 
-namespace cart::sdl
+namespace cartty::sdl
 {
-    class error final : public cart::error
+    class error final : public cartty::error
     {
     public:
         template <typename... Args>
         error(_impl::format_string<Args...> fmt, Args &&...args)
-            : cart::error { fmt.source, "{}: {}", std::format(fmt.fmt, std::forward<Args>(args)...),
+            : cartty::error { fmt.source, "{}: {}", std::format(fmt.fmt, std::forward<Args>(args)...),
                             SDL_GetError() }
         {
         }

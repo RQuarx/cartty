@@ -6,7 +6,7 @@
 #include "sdl/runtime_guard.hh"
 
 
-namespace cart::sdl
+namespace cartty::sdl
 {
     using event_type = SDL_EventType;
 

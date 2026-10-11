@@ -3,7 +3,7 @@
 #include "terminal/color.hh"
 
 
-namespace cart::term
+namespace cartty::term
 {
     struct cell
     {
@@ -148,5 +148,5 @@ namespace cart::term
     };
 
 
-    static_assert(sizeof(cell) == 16, "Too big of a size of cart::term:cell.");
+    static_assert(sizeof(cell) == 16, "Too big of a size of cartty::term:cell.");
 }

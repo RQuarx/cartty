@@ -4,7 +4,7 @@
 
 #include "terminal/color.hh"
 
-using cart::term::color;
+using cartty::term::color;
 
 
 namespace

@@ -3,7 +3,7 @@
 #include <cstdint>
 
 
-namespace cart::term
+namespace cartty::term
 {
     struct theme
     {
