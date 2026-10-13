@@ -23,16 +23,16 @@ namespace cartty::term
     public:
         struct range
         {
-            static constexpr auto unset = std::numeric_limits<std::uint32_t>::max();
+            static constexpr auto unset = -1;
 
-            std::uint32_t begin = unset;
-            std::uint32_t end   = unset;
+            std::int32_t begin = unset;
+            std::int32_t end   = unset;
 
 
             friend auto operator==(range, range) noexcept -> bool = default;
 
             /** Clamps `range::end` to `n`. */
-            constexpr auto clamp(std::uint32_t n) noexcept -> range &
+            constexpr auto clamp(std::int32_t n) noexcept -> range &
             {
                 end = std::min(end, n);
                 return *this;
@@ -108,15 +108,15 @@ namespace cartty::term
         using const_reverse_iterator = std::vector<cell>::const_reverse_iterator;
 
 
-        explicit row(std::size_t columns);
+        explicit row(std::int32_t columns);
 
-        [[nodiscard]] auto operator[](std::size_t col) noexcept -> result<cell *>;
-        [[nodiscard]] auto operator[](std::size_t col) const noexcept -> result<const cell *>;
+        [[nodiscard]] auto operator[](std::int32_t col) noexcept -> result<cell *>;
+        [[nodiscard]] auto operator[](std::int32_t col) const noexcept -> result<const cell *>;
 
         [[nodiscard]] auto operator[](range r) noexcept -> result<std::span<cell>>;
         [[nodiscard]] auto operator[](range r) const noexcept -> result<std::span<const cell>>;
 
-        [[nodiscard]] auto columns() const noexcept -> std::size_t;
+        [[nodiscard]] auto columns() const noexcept -> std::int32_t;
 
         [[nodiscard]] auto is_wrapped() const noexcept -> bool;
         [[nodiscard]] auto is_dirty() const noexcept -> bool;

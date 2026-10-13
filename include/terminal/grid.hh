@@ -1,5 +1,4 @@
 #pragma once
-#include <cstddef>
 #include <deque>
 
 #include "shared/result.hh"
@@ -16,26 +15,26 @@ namespace cartty::term
     public:
         struct range
         {
-            static constexpr auto unset = std::numeric_limits<std::size_t>::max();
+            static constexpr auto unset = -1;
 
-            std::size_t begin = unset;
-            std::size_t end   = unset;
+            std::int32_t begin = unset;
+            std::int32_t end   = unset;
 
 
             friend auto operator==(range, range) -> bool = default;
         };
 
 
-        grid(std::size_t rows, std::size_t columns, std::size_t scrollback_limit = 100'000);
+        grid(std::int32_t rows, std::int32_t columns, std::int32_t scrollback_limit = 100'000);
 
 
-        [[nodiscard]] auto columns() const noexcept -> std::size_t;
-        [[nodiscard]] auto rows() const noexcept -> std::size_t;
-        [[nodiscard]] auto scrollback_limit() const noexcept -> std::size_t;
+        [[nodiscard]] auto columns() const noexcept -> std::int32_t;
+        [[nodiscard]] auto rows() const noexcept -> std::int32_t;
+        [[nodiscard]] auto scrollback_limit() const noexcept -> std::int32_t;
 
 
-        [[nodiscard]] auto operator[](std::size_t row) noexcept -> result<term::row *>;
-        [[nodiscard]] auto operator[](std::size_t row) const noexcept -> result<const term::row *>;
+        [[nodiscard]] auto operator[](std::int32_t row) noexcept -> result<term::row *>;
+        [[nodiscard]] auto operator[](std::int32_t row) const noexcept -> result<const term::row *>;
 
 
         [[nodiscard]]
@@ -47,26 +46,27 @@ namespace cartty::term
             -> result<std::ranges::subrange<std::deque<term::row>::const_iterator>>;
 
 
-        void resize(std::size_t new_rows, std::size_t new_columns);
+        auto resize(std::int32_t new_rows, std::int32_t new_columns) noexcept -> result<>;
         void pop_front();
         void push_back(row r);
         void push_back();
 
-        void set_scrollback_limit(std::size_t n);
+        void set_scrollback_limit(std::int32_t n);
 
     private:
         std::deque<term::row> m_rows;
-        std::size_t           m_scrollback_limit;
+        std::int32_t          m_scrollback_limit;
 
 
         void mf_ensure_rows_is_under_limit();
 
-        static void
-        rewrap(_impl::logical_line &line, std::size_t new_columns, std::deque<term::row> &out_rows);
+        static auto rewrap(_impl::logical_line   &line,
+                           std::int32_t           new_columns,
+                           std::deque<term::row> &out_rows) noexcept -> result<>;
 
 
         /* Copies every range that overlaps [pos, end) and rebases it to the chunk. */
-        static void clip(const auto &src, std::uint32_t pos, std::uint32_t end, auto &&add)
+        static void clip(const auto &src, std::int32_t pos, std::int32_t end, auto &&add)
         {
             for (const auto &r : src)
             {

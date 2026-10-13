@@ -85,6 +85,10 @@ namespace cartty
     template <typename T = void, std::derived_from<error> E = error>
     using result = std::expected<T, E>;
 
+    template <typename T = void, std::derived_from<error> E = error>
+    auto throw_error(E &&err) -> result<T, E>
+    { throw std::forward<E>(err); }
+
     enum class action : std::uint8_t
     {
         exit_success     = 0,

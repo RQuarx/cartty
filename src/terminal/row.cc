@@ -1,6 +1,7 @@
 #pragma region "row::extras impl"
 #include <algorithm>
 
+#include "shared/utils.hh"
 #include "terminal/row.hh"
 
 namespace
@@ -58,7 +59,7 @@ namespace
 
         const auto pos
             = std::lower_bound(v.begin(), v.end(), value.begin,
-                               [](const T &r, std::uint32_t col) { return r.begin < col; });
+                               [](const T &r, std::int32_t col) -> bool { return r.begin < col; });
         const auto idx = std::size_t(pos - v.begin());
 
         bool merged = false;
@@ -155,7 +156,7 @@ void extras::add_underline(underline_range range)
 void extras::erase_uri(range range)
 {
     auto _ = mf_uris().and_then(
-        [&](std::vector<uri_range> *r)
+        [&](std::vector<uri_range> *r) -> std::optional<std::vector<uri_range> *>
         {
             erase_in(*r, range);
             return mf_uris();
@@ -166,7 +167,7 @@ void extras::erase_uri(range range)
 void extras::erase_underline(range range)
 {
     auto _ = mf_underlines().and_then(
-        [&](std::vector<underline_range> *r)
+        [&](std::vector<underline_range> *r) -> std::optional<std::vector<underline_range> *>
         {
             erase_in(*r, range);
             return mf_underlines();
@@ -181,19 +182,24 @@ void extras::erase_underline(range range)
 using cartty::term::row;
 
 
-row::row(std::size_t columns) : m_columns { columns } {}
+row::row(std::int32_t columns) : m_columns { static_cast<std::size_t>(columns) } {}
 
 
-auto row::operator[](std::size_t col) noexcept -> result<cell *>
+auto row::operator[](std::int32_t col) noexcept -> result<cell *>
 {
-    if (col >= m_columns.size())
-        return error { "Attempted to access out-of-range column {} (row::columns() = {})", col,
-                       columns() }
+    if (col < 0) return error { "Attempted to access negative column." }.unexpected();
+
+    auto column_index = UNWRAP(utils::cast<std::size_t>(col));
+
+    if (column_index >= m_columns.size())
+        return error { "Attempted to access out-of-range column {} (row::columns() = {})",
+                       column_index, columns() }
             .unexpected();
-    return &m_columns[col];
+    return &m_columns[column_index];
 }
 
-auto row::operator[](std::size_t col) const noexcept -> result<const cell *>
+
+auto row::operator[](std::int32_t col) const noexcept -> result<const cell *>
 {
     return const_cast<row &>(*this)[col].transform([](cell *c) -> const cell * { return c; });
 }
@@ -216,7 +222,8 @@ auto row::operator[](range r) const noexcept -> result<std::span<const cell>>
 }
 
 
-auto row::columns() const noexcept -> std::size_t { return m_columns.size(); }
+auto row::columns() const noexcept -> std::int32_t
+{ return utils::cast<std::int32_t>(m_columns.size(), {}); }
 
 auto row::is_wrapped() const noexcept -> bool { return m_attribute.has(attributes::wrapped); }
 auto row::is_dirty() const noexcept -> bool { return !m_attribute.has(attributes::clean); }

@@ -3,6 +3,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "shared/utils.hh"
 #include "terminal/grid.hh"
 
 using cartty::term::grid;
@@ -25,9 +26,9 @@ namespace cartty::term::_impl
         }
 
         /** Appends the first `count` cells of `row`, shifting its ranges into line coordinates. */
-        void append(const row &row, std::size_t count)
+        auto append(const row &row, std::int32_t count) noexcept -> result<>
         {
-            const auto base = std::uint32_t(cells.size());
+            const auto base = UNWRAP(utils::cast<std::int32_t>(cells.size()));
             cells.insert(cells.end(), row.begin(), row.begin() + count);
 
             auto shift = [&](auto r, auto &dst)
@@ -53,7 +54,8 @@ namespace cartty::term::_impl
             if (auto p = row.prompt_row())
             {
                 row::range r = *p;
-                r.clamp(std::uint32_t(count));
+                r.clamp(count);
+
                 r.begin += base;
                 r.end   += base;
 
@@ -65,30 +67,33 @@ namespace cartty::term::_impl
                 else
                     prompt = r;
             }
+
+            return {};
         }
     };
 }
 
 
-grid::grid(std::size_t rows, std::size_t columns, std::size_t scrollback_limit)
+grid::grid(std::int32_t rows, std::int32_t columns, std::int32_t scrollback_limit)
     : m_scrollback_limit { scrollback_limit }
 {
     while (rows-- != 0) push_back(row { columns });
 }
 
 
-auto grid::columns() const noexcept -> std::size_t
+auto grid::columns() const noexcept -> std::int32_t
 {
     if (m_rows.empty()) return 0;
     return m_rows.front().columns();
 }
 
 
-auto grid::rows() const noexcept -> std::size_t { return m_rows.size(); }
-auto grid::scrollback_limit() const noexcept -> std::size_t { return m_scrollback_limit; }
+auto grid::rows() const noexcept -> std::int32_t
+{ return utils::cast<std::int32_t>(m_rows.size(), {}); }
+auto grid::scrollback_limit() const noexcept -> std::int32_t { return m_scrollback_limit; }
 
 
-auto grid::operator[](std::size_t row) noexcept -> result<term::row *>
+auto grid::operator[](std::int32_t row) noexcept -> result<term::row *>
 {
     if (row >= rows())
         return error { "Out-of-range row access. `row` ({}) >= grid::rows() ({})", row, rows() }
@@ -97,7 +102,7 @@ auto grid::operator[](std::size_t row) noexcept -> result<term::row *>
 }
 
 
-auto grid::operator[](std::size_t row) const noexcept -> result<const term::row *>
+auto grid::operator[](std::int32_t row) const noexcept -> result<const term::row *>
 { return const_cast<grid &>(*this)[row]; }
 
 
@@ -130,7 +135,7 @@ void grid::push_back(row r)
 }
 
 
-void grid::set_scrollback_limit(std::size_t n)
+void grid::set_scrollback_limit(std::int32_t n)
 {
     m_scrollback_limit = n;
     mf_ensure_rows_is_under_limit();
@@ -143,11 +148,14 @@ void grid::mf_ensure_rows_is_under_limit()
 }
 
 
-void grid::resize(std::size_t new_rows, std::size_t new_columns)
+auto grid::resize(std::int32_t new_rows, std::int32_t new_columns) noexcept -> result<>
 {
-    if (new_columns < 2) return;
-    if (new_columns == columns() and new_rows > rows())
+    if (new_columns < 2) return {};
+    if (new_columns == columns())
+    {
         while (new_rows > rows()) push_back();
+        return {};
+    }
 
     static std::deque<term::row> rebuilt_rows;
     static _impl::logical_line   line;
@@ -167,38 +175,43 @@ void grid::resize(std::size_t new_rows, std::size_t new_columns)
                    and (row.begin() + count - 1)->attribute.has(cell::attributes::unwritten))
                 count--;
 
-        line.append(row, count);
+        if (auto res = line.append(row, count); !res) return res.error().unexpected();
 
         if (row.is_wrapped()) continue;
 
-        grid::rewrap(line, new_columns, rebuilt_rows);
+        if (auto res = grid::rewrap(line, new_columns, rebuilt_rows); !res)
+            return res.error().unexpected();
         line.clear();
     }
 
-    if (!line.cells.empty()) grid::rewrap(line, new_columns, rebuilt_rows);
+    if (!line.cells.empty())
+        if (auto res = grid::rewrap(line, new_columns, rebuilt_rows); !res)
+            return res.error().unexpected();
 
     m_rows = std::move(rebuilt_rows);
 
     while (new_rows > rows()) push_back();
 
     mf_ensure_rows_is_under_limit();
+    return {};
 }
 
 
-void
-grid::rewrap(_impl::logical_line &line, std::size_t new_columns, std::deque<term::row> &out_rows)
+auto grid::rewrap(_impl::logical_line   &line,
+                  std::int32_t           new_columns,
+                  std::deque<term::row> &out_rows) noexcept -> result<>
 {
     auto &cells = line.cells;
 
-    std::size_t used = cells.size();
+    auto used = UNWRAP(utils::cast<std::int32_t>(cells.size()));
     while (used > 0 and cells[used - 1].attribute.has(cell::attributes::unwritten)) used--;
 
-    std::size_t pos = 0;
+    std::int32_t pos = 0;
     do
     {
-        term::row   out { new_columns };
-        std::size_t limit = std::min(pos + new_columns, used);
-        std::size_t end   = limit;
+        term::row    out { new_columns };
+        std::int32_t limit = std::min(pos + new_columns, used);
+        std::int32_t end   = limit;
 
         if (limit < used)
         {
@@ -207,12 +220,12 @@ grid::rewrap(_impl::logical_line &line, std::size_t new_columns, std::deque<term
         }
 
         std::ranges::copy(cells.begin() + pos, cells.begin() + end, out.begin());
-        for (std::size_t i = end - pos; i < limit - pos; i++)
+        for (std::int32_t i = end - pos; i < limit - pos; i++)
             (out.begin() + i)->attribute.set(cell::attributes::unwritten, true);
 
         /* Row-level extras */
-        const std::uint32_t p = pos;
-        const std::uint32_t e = end;
+        const std::int32_t p = pos;
+        const std::int32_t e = end;
 
         clip(line.uris, p, e,
              [&](auto r)
@@ -239,5 +252,7 @@ grid::rewrap(_impl::logical_line &line, std::size_t new_columns, std::deque<term
 
         out_rows.emplace_back(std::move(out));
         pos = end;
-    } while (pos < used);
+    } while (pos <= used);
+
+    return {};
 }

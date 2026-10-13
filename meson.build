@@ -27,10 +27,22 @@ configure_file(output: 'metadata.hh',
 include = include_directories('include', '.')
 subdir('src')
 
+cxx = meson.get_compiler('cpp')
+
+if not cxx.compiles('''
+auto main() -> int
+{
+    int value = ({ 42; });
+    return value != 42;
+}
+''', name: 'GNU statement expressions')
+    error('GNU statement expressions are required')
+endif
+
 if get_option('build-tests')
     subdir('tests')
 endif
 
 executable(meson.project_name(), src,
            dependencies:        dependencies,
-           include_directories: include_directories('include', '.'))
+           include_directories: include)

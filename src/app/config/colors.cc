@@ -68,7 +68,15 @@ void colors::mf_parse_foreground_and_background(std::string_view key, const toml
     for (const auto &[key_, value_] : utils::as<toml::table>(key, node))
         for (const auto &intensity : { intensity::bright, intensity::normal, intensity::dim })
             if (key_ == intensity_to_string(intensity))
-                color[intensity] = utils::as<std::uint32_t>(key_, value_);
+            {
+                auto val = utils::as<std::uint32_t>(key_, value_);
+                if (val > 0xFFFFFF)
+                    throw error { "Value {:x} too large to fit inside a "
+                                  "24-bit RGB value.",
+                                  val };
+
+                color[intensity] = val;
+            }
 
     auto member = key == "foreground" ? &colors::m_foreground : &colors::m_background;
 
@@ -149,7 +157,7 @@ void colors::mf_parse_palette(std::string_view key, const toml::node &node)
         spdlog::warn("colors.palette.dim is not specified, using dimmed normal values.");
 
         for (const auto &[val, normal] :
-             std::views::zip(color[intensity::dim], m_palette[intensity::normal]))
+             std::views::zip(color[intensity::dim], color[intensity::normal]))
             val = make_dim(normal);
     }
 
